@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPA — Ahorro de Horas | Mercator Perú</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:      #ffffff;
+    --bg2:     #f7f8fa;
+    --bg3:     #f0f2f5;
+    --border:  #e4e7ed;
+    --border2: #c8cdd8;
+    --text:    #1a1d26;
+    --muted:   #8891a4;
+    --subtle:  #b2bac8;
+    --green:   #00a87a;
+    --green-bg:#e6f7f2;
+    --blue:    #2563eb;
+    --blue-bg: #eff4ff;
+    --amber:   #d97706;
+    --amber-bg:#fef3e2;
+    --red:     #dc2626;
+    --red-bg:  #fef2f2;
+    --sans:    'Sora', sans-serif;
+    --mono:    'JetBrains Mono', monospace;
+  }
+  html, body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; }
+
+  /* ─── HEADER ─── */
+  header {
+    background: var(--bg);
+    border-bottom: 1.5px solid var(--border);
+    padding: 36px 52px 28px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .logo-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .logo-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: blink 2.2s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .logo-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -.025em;
+    color: var(--text);
+    line-height: 1.15;
+  }
+  header h1 em {
+    font-style: normal;
+    color: var(--green);
+  }
+  .header-meta {
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--muted);
+    line-height: 2;
+  }
+  .header-meta strong { color: var(--text); font-weight: 500; }
+
+  /* ─── MAIN ─── */
+  main { padding: 36px 52px 64px; }
+
+  /* ─── KPIs ─── */
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+  .kpi {
+    border-radius: 14px;
+    padding: 20px 22px;
+    border: 1.5px solid transparent;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .kpi:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.07); }
+  .kpi.green { background: var(--green-bg); border-color: rgba(0,168,122,.2); }
+  .kpi.blue  { background: var(--blue-bg);  border-color: rgba(37,99,235,.2); }
+  .kpi.amber { background: var(--amber-bg); border-color: rgba(217,119,6,.2); }
+  .kpi.red   { background: var(--red-bg);   border-color: rgba(220,38,38,.2); }
+  .kpi-label {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .kpi.green .kpi-label { color: var(--green); }
+  .kpi.blue  .kpi-label { color: var(--blue); }
+  .kpi.amber .kpi-label { color: var(--amber); }
+  .kpi.red   .kpi-label { color: var(--red); }
+  .kpi-value {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -.03em;
+    line-height: 1;
+    margin-bottom: 5px;
+  }
+  .kpi.green .kpi-value { color: var(--green); }
+  .kpi.blue  .kpi-value { color: var(--blue); }
+  .kpi.amber .kpi-value { color: var(--amber); }
+  .kpi.red   .kpi-value { color: var(--red); }
+  .kpi-sub { font-size: 11px; color: var(--muted); }
+
+  /* ─── SECTION LABEL ─── */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: .12em;
+    color: var(--subtle);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* ─── TABLE ─── */
+  .table-wrap {
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  thead th {
+    background: var(--bg2);
+    padding: 11px 16px;
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: .07em;
+    color: var(--muted);
+    text-transform: uppercase;
+    border-bottom: 1.5px solid var(--border);
+    white-space: nowrap;
+  }
+  thead th:not(:first-child) { text-align: right; }
+  tbody td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: middle;
+  }
+  tbody td:not(:first-child) {
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #4b5263;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--bg2); }
+  tfoot td {
+    padding: 11px 16px;
+    background: var(--bg3);
+    border-top: 1.5px solid var(--border2);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  tfoot td:not(:first-child) { text-align: right; }
+  .pname { font-weight: 600; font-size: 12.5px; color: var(--text); }
+  .pgroup { font-family: var(--mono); font-size: 9.5px; color: var(--subtle); margin-top: 1px; }
+  .pill {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 500;
+  }
+  .pg { background: var(--green-bg); color: var(--green); }
+  .pb { background: var(--blue-bg);  color: var(--blue); }
+  .pa { background: var(--amber-bg); color: var(--amber); }
+  .bar-row { display:flex; align-items:center; gap:7px; justify-content:flex-end; }
+  .bm { height:6px; border-radius:3px; flex-shrink:0; }
+
+  /* ─── CHART GRID ─── */
+  .grid21 { display:grid; grid-template-columns:2fr 1fr; gap:14px; margin-bottom:14px; }
+  .grid11 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .chart-card {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 22px 18px;
+  }
+  .ctitle { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .csub { font-size: 11px; color: var(--muted); margin-bottom: 18px; }
+  .cwrap { position:relative; width:100%; }
+
+  /* ─── LEGEND ─── */
+  .legend { display:flex; gap:16px; margin-bottom:12px; flex-wrap:wrap; }
+  .leg-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--muted); }
+  .leg-sq { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    margin-top: 48px;
+    padding: 20px 52px;
+    border-top: 1.5px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg2);
+  }
+  footer span {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--subtle);
+    letter-spacing: .04em;
+  }
+
+  /* ─── ANIM ─── */
+  .fade { opacity:0; transform:translateY(14px); animation: fu .45s ease forwards; }
+  @keyframes fu { to { opacity:1; transform:translateY(0); } }
+  .kpi:nth-child(1){animation-delay:.05s}
+  .kpi:nth-child(2){animation-delay:.1s}
+  .kpi:nth-child(3){animation-delay:.15s}
+  .kpi:nth-child(4){animation-delay:.2s}
+
+  @media(max-width:860px){
+    header,main,footer{padding-left:20px;padding-right:20px;}
+    .kpis{grid-template-columns:repeat(2,1fr);}
+    .grid21,.grid11{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo-row">
+      <div class="logo-dot"></div>
+      <span class="logo-tag">Mercator Perú · Data Analytics & IA</span>
+    </div>
+    <h1>Automatización RPA — <em>Ahorro de Horas</em></h1>
+  </div>
+  <div class="header-meta">
+    <div><strong>8</strong> procesos en producción</div>
+    <div><strong>5</strong> ejecuciones humanas / semana</div>
+    <div><strong>48</strong> semanas laborables base</div>
+    <div id="fecha"></div>
+  </div>
+</header>
+
+<main>
+
+  <div class="kpis">
+    <div class="kpi green fade">
+      <div class="kpi-label">Ahorro / semana</div>
+      <div class="kpi-value">11.3 h</div>
+      <div class="kpi-sub">680 min netos</div>
+    </div>
+    <div class="kpi blue fade">
+      <div class="kpi-label">Ahorro real / año</div>
+      <div class="kpi-value">544 h</div>
+      <div class="kpi-sub">11.3 h × 48 semanas</div>
+    </div>
+    <div class="kpi amber fade">
+      <div class="kpi-label">Reportado / año</div>
+      <div class="kpi-value">480 h</div>
+      <div class="kpi-sub">cifra conservadora</div>
+    </div>
+    <div class="kpi red fade">
+      <div class="kpi-label">Reducción promedio</div>
+      <div class="kpi-value">73%</div>
+      <div class="kpi-sub">tiempo por ejecución</div>
+    </div>
+  </div>
+
+  <div class="section-label">Detalle por proceso</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Proceso</th>
+          <th>T. Humano</th>
+          <th>T. RPA</th>
+          <th>Ejec./sem</th>
+          <th>Ahorro/sem</th>
+          <th>Ahorro/año</th>
+          <th>% Reducción</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+      <tfoot>
+        <tr>
+          <td>TOTAL</td>
+          <td></td><td></td><td></td>
+          <td>680 min</td>
+          <td>544 h</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="section-label">Visualización</div>
+
+  <div class="grid21">
+    <div class="chart-card">
+      <div class="ctitle">Ahorro anual por proceso</div>
+      <div class="csub">Horas ahorradas al año · base 48 semanas laborables</div>
+      <div class="cwrap" style="height:270px"><canvas id="c1"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="ctitle">% Reducción de tiempo</div>
+      <div class="csub">RPA vs humano por ejecución</div>
+      <div class="cwrap" style="height:270px"><canvas id="c2"></canvas></div>
+    </div>
+  </div>
+
+  <div class="grid11">
+    <div class="chart-card">
+      <div class="ctitle">Tiempo humano vs RPA</div>
+      <div class="csub">Comparativa en minutos por ejecución</div>
+      <div class="legend">
+        <div class="leg-item"><div class="leg-sq" style="background:#dc2626"></div>Humano</div>
+        <div class="leg-item"><div class="leg-sq" style="background:#00a87a"></div>RPA</div>
+      </div>
+      <div class="cwrap" style="height:220px"><canvas id="c3"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="ctitle">Distribución del ahorro anual</div>
+      <div class="csub">Participación de cada proceso · total 544 h</div>
+      <div class="cwrap" style="height:220px"><canvas id="c4"></canvas></div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <span>8 procesos activos · RPA 2 + RPA CAL + RPA SUNAT</span>
+  <span>Elaborado por Jorge Herrera · Data Analytics & IA · Mercator Perú</span>
+  <span id="footer-date"></span>
+</footer>
+
+<script>
+const procs = [
+  {n:'Instructivo Reefer',      g:'RPA 2', h:10,  r:1,  ex:5},
+  {n:'Generación BP',           g:'RPA 2', h:15,  r:2,  ex:5},
+  {n:'Sobre Estadía Expo',      g:'RPA 2', h:10,  r:5,  ex:5},
+  {n:'Sobre Estadía Impo',      g:'RPA 2', h:10,  r:5,  ex:5},
+  {n:'Reporte Vessel Perf.',    g:'RPA 2', h:5,   r:2,  ex:5},
+  {n:'Facturación S. Estadía',  g:'RPA 2', h:30,  r:2,  ex:5},
+  {n:'RPA CAL',                 g:'RPA',   h:120, r:60, ex:5},
+  {n:'RPA SUNAT',               g:'RPA',   h:15,  r:2,  ex:5},
+];
+const WKS = 48;
+procs.forEach(d => {
+  d.savW = (d.h - d.r) * d.ex;
+  d.savY = Math.round(d.savW * WKS / 60 * 10) / 10;
+  d.pct  = Math.round((1 - d.r / d.h) * 100);
+});
+const maxSavW = Math.max(...procs.map(d => d.savW));
+const totalY  = procs.reduce((s,d) => s + d.savY, 0);
+
+// Date
+const now = new Date();
+document.getElementById('fecha').textContent =
+  now.toLocaleDateString('es-PE', {day:'2-digit',month:'short',year:'numeric'});
+document.getElementById('footer-date').textContent =
+  now.toLocaleDateString('es-PE', {day:'2-digit',month:'short',year:'numeric'});
+
+// Color
+function col(pct) {
+  if(pct>=80) return {main:'#00a87a', bg:'#e6f7f2', pill:'pg'};
+  if(pct>=60) return {main:'#2563eb', bg:'#eff4ff', pill:'pb'};
+  return              {main:'#d97706', bg:'#fef3e2', pill:'pa'};
+}
+
+// Table
+const tb = document.getElementById('tbody');
+procs.forEach(d => {
+  const c = col(d.pct);
+  const bw = Math.round(d.savW / maxSavW * 64);
+  tb.innerHTML += `<tr>
+    <td><div class="pname">${d.n}</div><div class="pgroup">${d.g}</div></td>
+    <td>${d.h} min</td>
+    <td>${d.r} min</td>
+    <td>${d.ex}</td>
+    <td><div class="bar-row"><div class="bm" style="width:${bw}px;background:${c.main}"></div>${d.savW} min</div></td>
+    <td style="color:${c.main};font-weight:700">${d.savY} h</td>
+    <td><span class="pill ${c.pill}">${d.pct}%</span></td>
+  </tr>`;
+});
+
+const FONT = "'Sora', sans-serif";
+const MONO = "'JetBrains Mono', monospace";
+const tc = '#8891a4';
+const gc = 'rgba(0,0,0,.05)';
+const bgCharts = '#ffffff';
+
+// C1 – ahorro anual horizontal
+new Chart(document.getElementById('c1'), {
+  type: 'bar',
+  data: {
+    labels: procs.map(d => d.n),
+    datasets: [{ data: procs.map(d => d.savY), backgroundColor: procs.map(d => col(d.pct).main + 'cc'), borderRadius: 4, borderSkipped: false }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { legend:{display:false}, tooltip:{callbacks:{label:c=>` ${c.raw} h/año`}} },
+    scales: {
+      x: { ticks:{color:tc,font:{size:10,family:MONO},callback:v=>v+'h'}, grid:{color:gc} },
+      y: { ticks:{color:'#4b5263',font:{size:11,family:FONT}}, grid:{display:false} }
+    }
+  }
+});
+
+// C2 – % reducción horizontal
+new Chart(document.getElementById('c2'), {
+  type: 'bar',
+  data: {
+    labels: procs.map(d => d.n),
+    datasets: [{ data: procs.map(d => d.pct), backgroundColor: procs.map(d => col(d.pct).main + 'cc'), borderRadius: 4, borderSkipped: false }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { legend:{display:false}, tooltip:{callbacks:{label:c=>` ${c.raw}%`}} },
+    scales: {
+      x: { min:0,max:100, ticks:{color:tc,font:{size:10,family:MONO},callback:v=>v+'%'}, grid:{color:gc} },
+      y: { ticks:{color:'#4b5263',font:{size:11,family:FONT}}, grid:{display:false} }
+    }
+  }
+});
+
+// C3 – grouped
+new Chart(document.getElementById('c3'), {
+  type: 'bar',
+  data: {
+    labels: procs.map(d => d.n),
+    datasets: [
+      {label:'Humano', data:procs.map(d=>d.h), backgroundColor:'rgba(220,38,38,.55)', borderRadius:3},
+      {label:'RPA',    data:procs.map(d=>d.r), backgroundColor:'rgba(0,168,122,.65)', borderRadius:3}
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.raw} min`}}},
+    scales:{
+      x:{ticks:{color:tc,font:{size:10,family:FONT},maxRotation:30}, grid:{display:false}},
+      y:{ticks:{color:tc,font:{size:10,family:MONO},callback:v=>v+' min'}, grid:{color:gc}}
+    }
+  }
+});
+
+// C4 – donut
+const palette = ['#00a87a','#2563eb','#d97706','#dc2626','#4ade80','#60a5fa','#fbbf24','#f87171'];
+new Chart(document.getElementById('c4'), {
+  type: 'doughnut',
+  data: {
+    labels: procs.map(d => d.n),
+    datasets: [{ data: procs.map(d=>d.savY), backgroundColor: palette, borderWidth: 2, borderColor: '#fff', hoverOffset: 6 }]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false, cutout:'62%',
+    plugins:{
+      legend:{position:'right', labels:{color:'#4b5263',font:{size:10,family:FONT},boxWidth:10,padding:9}},
+      tooltip:{callbacks:{label:c=>` ${c.label}: ${c.raw}h (${Math.round(c.raw/totalY*100)}%)`}}
+    }
+  }
+});
+</script>
+</body>
+</html>
